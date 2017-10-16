@@ -1,0 +1,22 @@
+git clone https://github.com/edenhill/librdkafka.git
+pushd librdkafka
+./configure
+make -j
+make install
+popd
+git clone https://github.com/jbeder/yaml-cpp.git
+pushd yaml-cpp
+mkdir build
+cd build
+cmake -DBUILD_SHARED_LIBS=OFF ..
+make -j
+make install
+popd
+git clone https://github.com/OpenBMP/openbmp.git
+pushd openbmp
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ../
+make -j
+make install
+popd
