@@ -1,0 +1,6 @@
+sed -i 's/8080/8001/g'  /opt/tomcat/conf/server.xml
+grep 8001 /opt/tomcat/conf/server.xml
+sed -i '/port=\"8001\"/a\
+	compression="on" compressionMinSize="8192"\
+	compressableMimeType="text/json,application/json"\
+	noCompressionUserAgents="gozilla, traviata"' /opt/tomcat/conf/server.xml

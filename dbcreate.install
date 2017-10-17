@@ -1,0 +1,17 @@
+pushd /usr/local/openbmp
+wget https://raw.githubusercontent.com/OpenBMP/docker/master/aio/files/whois.db.gz
+gzip -d whois.db.gz
+
+# Download the current OpenBMP schema
+wget https://raw.githubusercontent.com/OpenBMP/openbmp-mysql-consumer/master/database/mysql-openbmp-current.db
+
+# copy over the schema version and migration script
+wget https://raw.githubusercontent.com/OpenBMP/openbmp-mysql-consumer/master/database/schema-version
+wget https://raw.githubusercontent.com/OpenBMP/openbmp-mysql-consumer/master/database/migrate_db.sh
+chmod 755 migrate_db.sh
+
+# copy over stored procedures
+wget https://raw.githubusercontent.com/OpenBMP/openbmp-mysql-consumer/master/database/stored_procs/ls_isis_spf.sql
+wget https://raw.githubusercontent.com/OpenBMP/openbmp-mysql-consumer/master/database/stored_procs/ls_ospf_spf.sql
+wget https://raw.githubusercontent.com/OpenBMP/openbmp-mysql-consumer/master/database/stored_procs/mysql-openbmp-proc-deleterouter.sql
+popd
