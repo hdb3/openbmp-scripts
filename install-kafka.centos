@@ -4,3 +4,4 @@ mkdir -m 0750 /var/kafka
 popd
 # now you need to edit the properties file - /opt/kafka/config/server.properties
 # see the docker kafka run script - it is "advertised.listeners" which needs to be set to a local domain name
+# e.g. echo "advertised.listeners=PLAINTEXT://openbmp:9092" >> /opt/kafka/config/server.properties
