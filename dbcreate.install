@@ -1,17 +1,57 @@
-pushd /usr/local/openbmp
+MYSQL_ROOT_PASSWORD="OpenBMP"
+OPENBMP_DB_PASSWORD="openbmp"
+OPENBMP_DB_USER="openbmp"
+OPENBMP_DB_NAME="openBMP"
+GROUP_ID="openbmp-mysql-consumer"
+
+# Update the local defaults file
+echo "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}" > /etc/default/openbmpd
+echo "OPENBMP_DB_PASSWORD=${OPENBMP_DB_PASSWORD}" >> /etc/default/openbmpd
+echo "OPENBMP_DB_USER=${OPENBMP_DB_USER}" >> /etc/default/openbmpd
+echo "OPENBMP_DB_NAME=${OPENBMP_DB_NAME}" >> /etc/default/openbmpd
+echo "GROUP_ID=${GROUP_ID}" >> /etc/default/openbmpd
+echo "ADMIN_ID=${ADMIN_ID}" >> /etc/default/openbmpd
+
+mysqladmin -u root password "${MYSQL_ROOT_PASSWORD}"
+#mysqladmin -u root -h $(uname -n) password "${MYSQL_ROOT_PASSWORD}"
+
+# Create the mysql DB and create user
+mysql -v -u root --password=${MYSQL_ROOT_PASSWORD} << EOF
+	create database openBMP;
+	create user 'openbmp'@'localhost' identified by "${OPENBMP_DB_PASSWORD}";
+	create user 'openbmp'@'%' identified by "${OPENBMP_DB_PASSWORD}";
+	grant all on openBMP.* to 'openbmp'@'localhost';
+	grant all on openBMP.* to 'openbmp'@'%';
+EOF
+#exit
+
+rm -rf /tmp/openbmp
+mkdir -p /tmp/openbmp
+pushd /tmp/openbmp
+
+wget https://raw.githubusercontent.com/OpenBMP/docker/master/aio/files/geo_ip.db
+mysql -v -u openbmp --password=${OPENBMP_DB_PASSWORD} openBMP < geo_ip.db
+
+wget https://raw.githubusercontent.com/OpenBMP/docker/master/aio/files/users.db
+mysql -v -u root --password=${MYSQL_ROOT_PASSWORD} openBMP < users.db
+
 wget https://raw.githubusercontent.com/OpenBMP/docker/master/aio/files/whois.db.gz
 gzip -d whois.db.gz
+mysql -v -u openbmp --password=${OPENBMP_DB_PASSWORD} openBMP < whois.db
 
-# Download the current OpenBMP schema
 wget https://raw.githubusercontent.com/OpenBMP/openbmp-mysql-consumer/master/database/mysql-openbmp-current.db
+mysql -v -u root --password=${MYSQL_ROOT_PASSWORD} openBMP < mysql-openbmp-current.db
 
-# copy over the schema version and migration script
 wget https://raw.githubusercontent.com/OpenBMP/openbmp-mysql-consumer/master/database/schema-version
 wget https://raw.githubusercontent.com/OpenBMP/openbmp-mysql-consumer/master/database/migrate_db.sh
 chmod 755 migrate_db.sh
 
-# copy over stored procedures
 wget https://raw.githubusercontent.com/OpenBMP/openbmp-mysql-consumer/master/database/stored_procs/ls_isis_spf.sql
 wget https://raw.githubusercontent.com/OpenBMP/openbmp-mysql-consumer/master/database/stored_procs/ls_ospf_spf.sql
 wget https://raw.githubusercontent.com/OpenBMP/openbmp-mysql-consumer/master/database/stored_procs/mysql-openbmp-proc-deleterouter.sql
+
+mysql -v -u openbmp --password=${OPENBMP_DB_PASSWORD} openBMP < ls_isis_spf.sql
+mysql -v -u openbmp --password=${OPENBMP_DB_PASSWORD} openBMP < ls_ospf_spf.sql
+mysql -v -u openbmp --password=${OPENBMP_DB_PASSWORD} openBMP < mysql-openbmp-proc-deleterouter.sql
+
 popd
