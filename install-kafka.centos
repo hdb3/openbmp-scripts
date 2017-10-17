@@ -1,0 +1,6 @@
+pushd /tmp
+wget -O - http://apache.cs.utah.edu/kafka/0.11.0.1/kafka_2.12-0.11.0.1.tgz | tar xzv && mv kafka_2* /opt/kafka
+mkdir -m 0750 /var/kafka
+popd
+# now you need to edit the properties file - /opt/kafka/config/server.properties
+# see the docker kafka run script - it is "advertised.listeners" which needs to be set to a local domain name
